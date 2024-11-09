@@ -1,35 +1,19 @@
+# modules/ai_utils.py
 from modules.database import get_connection
-
-
-def vectorize_content(content):
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute("""
-            SELECT pgai.embed($$%s$$)
-        """, (content,))
-        embedding = cur.fetchone()[0]
-    conn.close()
-    return embedding
-
-
-def insert_story_element(content):
-    embedding = vectorize_content(content)
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute("""
-            INSERT INTO story_elements (content, embedding)
-            VALUES (%s, %s)
-        """, (content, embedding))
-        conn.commit()
-    conn.close()
-
 
 def generate_response(prompt):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT pgai.generate_text($$%s$$)
+            SELECT ai.ollama_chat_complete(
+                'llama2',
+                jsonb_build_array(
+                    jsonb_build_object('role', 'system', 'content', 'You are a useful game assistant.'),
+                    jsonb_build_object('role', 'user', 'content', %s)
+                )
+            )->'message'->>'content' AS response;
         """, (prompt,))
-        response = cur.fetchone()[0]
+        result = cur.fetchone()
+        response = result[0] if result else "Sorry, I couldn't generate a response."
     conn.close()
     return response

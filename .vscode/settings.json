@@ -1,0 +1,17 @@
+{
+    "cSpell.words": [
+        "dotenv",
+        "fastapi",
+        "ollama",
+        "pgai",
+        "PGDATABASE",
+        "PGHOST",
+        "PGPORT",
+        "PGSSLMODE",
+        "PGUSER",
+        "psycopg",
+        "templating",
+        "uvicorn",
+        "vectorize"
+    ]
+}
